@@ -7,15 +7,11 @@ const tileWidth = canvas.width / cols;
 const tileHeight = canvas.height / rows;
 
 let board;
-
 let puzzleImg = new Image(canvas.width, canvas.height);
 puzzleImg.src = 'rick-astley.jpg';
-const aspectRatio = puzzleImg.naturalWidth / puzzleImg.width;
-const naturalTileWidth = aspectRatio * canvas.width / cols;
-const naturalTileHeight = aspectRatio * canvas.height / rows;
 
 puzzleImg.onload = () => {
-	board = new Board(rows, cols, puzzleImg);
+	board = new Board(rows, cols, canvas.width, canvas.height, puzzleImg);
 	board.shuffle(500);
 	board.paint();
 }
@@ -24,11 +20,21 @@ puzzleImg.onload = () => {
  * Represents the whole puzzle board
  */
 class Board {
-	constructor(rows, cols, img) {
+	constructor(rows, cols, width, height, img) {
 		this.rows = rows;
 		this.cols = cols;
 		this.img = img;
+		this.width = width;
+		this.height = height;
 		this.tiles = [];
+
+		this.tileWidth = width / cols;
+		this.tileHeight = height / rows;
+
+		this.aspectRatio = img.naturalWidth / img.width;
+		this.naturalTileWidth = this.aspectRatio * width / cols;
+		this.naturalTileHeight = this.aspectRatio * height / rows;
+
 		for (let row = 0; row < rows; ++row) {
 			this.tiles.push([]);
 			for (let col = 0; col < cols; ++col) {
@@ -43,25 +49,25 @@ class Board {
 	 * draws all tiles
 	 */
 	paint() {
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillRect(0, 0, this.width, this.height);
 		this.tiles.forEach((row, i) => {
 			row.forEach((tile, j) => {
-				if (!tile.isEmpty) ctx.drawImage(puzzleImg, tile.realX * naturalTileWidth, tile.realY * naturalTileHeight, naturalTileWidth, naturalTileHeight, i * tileWidth, j * tileHeight, tileWidth, tileHeight);
+				if (!tile.isEmpty) ctx.drawImage(this.img, tile.realX * this.naturalTileWidth, tile.realY * this.naturalTileHeight, this.naturalTileWidth, this.naturalTileHeight, i * this.tileWidth, j * this.tileHeight, this.tileWidth, this.tileHeight);
 			})
 		});
 
 		// draw horizontal gridlines
 		for (let row = 0; row < rows + 1; ++row) {
-			if (row == 0) ctx.fillRect(0, row * tileHeight, canvas.width, 2);	// top-most grid line
-			else if (row == rows) ctx.fillRect(0, row * tileHeight - 2, canvas.width, 2);	// bottom-most grid line
-			else ctx.fillRect(0, row * tileHeight - 1, canvas.width, 2);
+			if (row == 0) ctx.fillRect(0, row * this.tileHeight, this.width, 2);	// top-most grid line
+			else if (row == rows) ctx.fillRect(0, row * this.tileHeight - 2, this.width, 2);	// bottom-most grid line
+			else ctx.fillRect(0, row * this.tileHeight - 1, this.width, 2);
 		}
 
 		// draw vertical gridlines
 		for (let row = 0; row < rows + 1; ++row) {
-			if (row == 0) ctx.fillRect(row * tileWidth, 0, 2, canvas.width);	// left-most grid line
-			else if (row == rows) ctx.fillRect(row * tileWidth - 2, 0, 2, canvas.width);	// right-most grid line
-			else ctx.fillRect(row * tileWidth - 1, 0, 2, canvas.width);
+			if (row == 0) ctx.fillRect(row * this.tileWidth, 0, 2, this.width);	// left-most grid line
+			else if (row == rows) ctx.fillRect(row * this.tileWidth - 2, 0, 2, this.width);	// right-most grid line
+			else ctx.fillRect(row * this.tileWidth - 1, 0, 2, this.width);
 		}
 	}
 
